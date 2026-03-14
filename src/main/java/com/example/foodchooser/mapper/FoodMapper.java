@@ -1,7 +1,7 @@
-package com.example.foodchooserv2.mapper;
+package com.example.foodchooser.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.example.foodchooserv2.entity.Food;
+import com.example.foodchooser.entity.Food;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

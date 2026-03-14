@@ -1,4 +1,4 @@
-package com.example.foodchooserv2;
+package com.example.foodchooser;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
