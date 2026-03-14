@@ -4,14 +4,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
-@TableName("food")
+@TableName("foodv2")
 public class Food {
     @TableId(type = IdType.AUTO)//数据库主键的生成策略是自动生长
-    private Integer id;
-    private String name;
+    private Integer idfoodv2;
+    private String namev2;
 
-    public Integer getId() {return id;}
-    public void setId(Integer id) {this.id = id;}
-    public String getName() {return name;}
-    public void setName(String name) {this.name = name;}
+    public Integer getId() {return idfoodv2;}
+    public void setId(Integer idfoodv2) {this.idfoodv2 = idfoodv2;}
+    public String getName() {return namev2;}
+    public void setName(String namev2) {this.namev2 = namev2;}
 }
