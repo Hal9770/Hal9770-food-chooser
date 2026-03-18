@@ -1,14 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN"> <!-- 改成中文编码习惯 -->
 <head>
     <meta charset="UTF-8">
-    <title>今天吃什么</title>
+    <title>今天吃什么决策系统</title>
+    <style>
+        /* 这里稍微加点内联样式，让你的“卡片”看起来像个样，不用背，复制即可 */
+        #food-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            background-color: #f9f9f9;
+            display: none; /* 一开始隐藏，有数据再显示 */
+        }
+        .info-item { margin: 5px 0; }
+        .highlight { color: #e74c3c; font-weight: bold; font-size: 1.2em; }
+    </style>
 </head>
 <body>
-    <h1>今天吃什么？</h1>
-    <button id="chooseBtn">随机选一个</button>//触发器
-    <p id="result">点击按钮，决定你的午餐</p>//显示器
+<h1>今天吃什么？</h1>
+<button id="chooseBtn">随机选一个</button>
 
-    <script src="script.js"></script>//引入js文件
+<!-- 这里不再只是一个 p 标签，而是一个卡片容器 -->
+<div id="food-card">
+    <div class="info-item">食物名称：<span id="food-name" class="highlight"></span></div>
+    <!-- 改动点：canteen 改为 position，对应 positionv2 -->
+    <div class="info-item">所在位置：<span id="food-position"></span></div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>

@@ -21,6 +21,6 @@ public class FoodMapperTest {
         List<Food> foods = foodMapper.selectList(null);//查询所有
         assertNotNull(foods);
         System.out.println("查询到 " + foods.size() + " 条数据");
-        foods.forEach(f -> System.out.println(f.getId() + " - " + f.getName()));
+        foods.forEach(f -> System.out.println(f.getIdv2() + " - " + f.getNamev2()));
     }
 }

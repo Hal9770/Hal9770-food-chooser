@@ -1,23 +1,30 @@
-// 获取页面元素
+// 1. 获取页面元素（拿到了按钮和三个填充位置）
 const button = document.getElementById('chooseBtn');
-const result = document.getElementById('result');
+const card = document.getElementById('food-card');
+const nameEl = document.getElementById('food-name');
+const positionEl = document.getElementById('food-position');
 
-// 点击事件：每次点击都向后端请求一个随机食物
+
 button.addEventListener('click', function() {
-    // 发起请求，获取随机食物
+    // 2. 发起请求（注意核对这里的路径是否和后端 Controller 对应）
     fetch('/random-food')
         .then(response => {
             if (!response.ok) {
                 throw new Error('网络响应错误');
             }
-            return response.json(); // 把返回的 JSON 转成 JS 对象
+            return response.json();
         })
         .then(food => {
-            // food 是一个对象，包含 id, name, canteen, category 等属性
-            result.textContent = `今天吃：${food.name}`; // 显示食物名称
+            // 3. 核心改动：数据填充
+            // 把后端传回来的 food 对象的属性，填到对应的 span 标签里
+            nameEl.textContent = food.namev2;
+            positionEl.textContent = food.positionv2; // 假设后端返回了这些字段
+
+            // 4. 让隐藏的卡片显示出来
+            card.style.display = 'block';
         })
         .catch(error => {
             console.error('请求失败:', error);
-            result.textContent = '出错了，请稍后重试';
+            alert('哎呀，服务器开小差了，请稍后重试！'); // 弹窗提示比改文字更明显
         });
 });

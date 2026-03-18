@@ -20,7 +20,7 @@ public class FoodServiceTest {
     public void testAddFood() {
         Food food = foodService.getRandomFood();
         assertNotNull(food, "获取到的食物不应该为空");
-        System.out.println(food.getId());
-        System.out.println(food.getName());
+        System.out.println(food.getIdv2());
+        System.out.println(food.getNamev2());
     }
 }
