@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Random;
 
-@Service//注入FoodMapper
+@Service
 public class FoodService {
 
-    @Autowired
+    @Autowired//注入FoodMapper
     private FoodMapper foodMapper;
 
     public Food getRandomFood(){
