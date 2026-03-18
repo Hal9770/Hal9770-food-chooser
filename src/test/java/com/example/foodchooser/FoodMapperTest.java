@@ -11,7 +11,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest//组合注解，标注这是一个SpringBoot测试
-public class TestConnection {
+public class FoodMapperTest {
 
     @Autowired//在测试中注入Bean
     private FoodMapper foodMapper;
