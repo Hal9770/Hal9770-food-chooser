@@ -24,6 +24,22 @@
     </style>
 </head>
 <body>
+<!-- 【新增】用户操作区 -->
+<div id="user-section" style="margin-bottom: 20px; padding: 10px; background-color: #f0f0f0; border-radius: 5px;">
+    <!-- 未登录时显示的内容 -->
+    <div id="auth-forms">
+        用户名：<input type="text" id="username-input" placeholder="请输入用户名">
+        密码：<input type="password" id="password-input" placeholder="请输入密码">
+        <button id="login-btn">登录</button>
+        <button id="register-btn">注册</button>
+    </div>
+
+    <!-- 登录成功后显示的内容（默认隐藏） -->
+    <div id="user-info" style="display: none;">
+        欢迎你，<span id="current-user" style="color: blue; font-weight: bold;"></span>！
+        <button id="logout-btn">退出登录</button>
+    </div>
+</div>
 <h1>今天吃什么？</h1>
 <!-- 【新增】下拉选择框 -->
 <!-- value="" 表示默认选项，值为空，代表“全校随机” -->

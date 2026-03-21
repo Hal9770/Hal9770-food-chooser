@@ -29,8 +29,8 @@ public class SecurityConfig {//配置类
                 .authorizeRequests()
                 // 设置“白名单”：这些路径，允许匿名访问
                 .antMatchers(
-                        "/auth/login",      // 登录接口
-                        "/auth/register",   // 注册接口
+                        "/users/login",      // 登录接口
+                        "/users/register",   // 注册接口
                         "/",                // 首页
                         "/index.html",      // 首页页面
                         "/script.js",       // 前端脚本

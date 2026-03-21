@@ -1,3 +1,77 @@
+// ================= 用户认证相关逻辑 =================
+
+// 1. 获取新增的 DOM 元素
+const usernameInput = document.getElementById('username-input');
+const passwordInput = document.getElementById('password-input');
+const loginBtn = document.getElementById('login-btn');
+const registerBtn = document.getElementById('register-btn');
+const logoutBtn = document.getElementById('logout-btn');
+const authForms = document.getElementById('auth-forms');
+const userInfo = document.getElementById('user-info');
+const currentUserSpan = document.getElementById('current-user');
+
+// 2. 注册功能
+registerBtn.addEventListener('click', function() {
+    const username = usernameInput.value;
+    const password = passwordInput.value;
+
+    if (!username || !password) {
+        alert('用户名和密码不能为空！');
+        return;
+    }
+
+    fetch('/users/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username, password: password })
+    })
+    .then(res => res.text()) // 后端返回的是字符串 "注册成功"
+    .then(data => {
+        alert(data); // 弹窗显示结果
+        if (data.includes('成功')) {
+            // 注册成功后自动填入用户名，方便用户直接点登录
+            passwordInput.value = '';
+        }
+    });
+});
+
+// 3. 登录功能
+loginBtn.addEventListener('click', function() {
+    const username = usernameInput.value;
+    const password = passwordInput.value;
+
+    fetch('/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username, password: password })
+    })
+    .then(res => res.text())
+    .then(data => {
+        if (data.includes('欢迎')) {
+            // 登录成功！
+            alert(data);
+
+            // 【核心】切换页面状态
+            authForms.style.display = 'none'; // 隐藏登录框
+            userInfo.style.display = 'block'; // 显示欢迎信息
+            currentUserSpan.textContent = username; // 显示用户名
+
+            // 【重要】后续如果做 JWT，这里需要存储 Token
+            // localStorage.setItem('token', '...');
+        } else {
+            alert(data); // 弹出 "用户名或密码错误"
+        }
+    });
+});
+
+// 4. 退出登录（暂时只是刷新页面）
+logoutBtn.addEventListener('click', function() {
+    if(confirm('确定要退出吗？')) {
+        window.location.reload();
+    }
+});
+
+// ================= 原有的食物选择逻辑 =============
 // 1. 获取页面元素（拿到了按钮和三个填充位置）
 const button = document.getElementById('chooseBtn');
 const card = document.getElementById('food-card');
