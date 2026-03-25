@@ -6,6 +6,7 @@ import com.example.foodchooser.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -22,6 +23,11 @@ public class UserService {
      * @param rawPassword 明文密码
      * @return 注册成功返回 true，失败返回 false
      */
+    /**
+     * 用户注册
+     * @Transactional 注解确保方法执行成功后事务提交
+     */
+    @Transactional // 添加这个注解
     public boolean register(String username, String rawPassword) {
         // 1. 检查用户名是否已存在
         // 使用 QueryWrapper 构建查询条件：WHERE username = ?
