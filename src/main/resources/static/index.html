@@ -1,70 +1,196 @@
 <!DOCTYPE html>
-<html lang="zh-CN"> <!-- 改成中文编码习惯 -->
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>今天吃什么决策系统</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>今天吃什么？</title>
     <style>
-        /* 这里稍微加点内联样式，让你的“卡片”看起来像个样，不用背，复制即可 */
-        #food-card {
-            border: 1px solid #ddd;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-            background-color: #f9f9f9;
-            display: none; /* 一开始隐藏，有数据再显示 */
+        /* 全局变量，定义几个好看的颜色 */
+        :root {
+            --primary-color: #4A90E2; /* 舒适的蓝色 */
+            --text-color: #333;
+            --bg-color: #ffffff; /* 纯白背景 */
+            --accent-color: #e74c3c; /* 强调色 */
         }
-        .info-item { margin: 5px 0; }
-        .highlight { color: #e74c3c; font-weight: bold; font-size: 1.2em; }
 
-        /* 新增：给下拉框和按钮加点间距，好看点 */
-        #canteenSelect {
-            padding: 5px;
-            margin-right: 10px;
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh; /* 占满全屏高度 */
+            overflow: hidden; /* 关键：禁止滚动 */
+            display: flex;
+            justify-content: center; /* 水平居中 */
+            align-items: center;    /* 垂直居中 */
+        }
+
+        /* 整个内容容器，用 transform 垂直居中 */
+        .content-container {
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            transform: translateY(-10%); /* 关键：稍微往上移一点，避免太靠下 */
+        }
+
+        h1 {
+            font-size: 3rem; /* 超大标题 */
+            font-weight: 300; /* 细体字，更优雅 */
+            margin-bottom: 60px; /* 增加标题和控件之间的间距 */
+            letter-spacing: 2px; /* 字间距 */
+        }
+
+        /* 控制区布局：现在用 margin 自动居中，而不是 flex */
+        .control-wrapper {
+            display: flex;
+            flex-direction: column; /* 手机端竖着排 */
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto; /* 关键：让控件区居中 */
+        }
+
+        /* 下拉框样式 - 极简风 */
+        select {
+            width: 100%;
+            max-width: 250px; /* 关键：限制最大宽度，和按钮一致 */
+            padding: 15px 20px; /* 和按钮保持一致的 padding */
+            font-size: 1.1rem; /* 和按钮保持一致的字体大小 */
+            border: none;
+            border-radius: 50px; /* 超大圆角 */
+            background-color: #f5f5f5;
+            color: #555;
+            outline: none;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            appearance: none; /* 去掉默认箭头，更干净（如果需要箭头可以不加这行） */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* 和按钮一致的轻微阴影 */
+        }
+
+        select:focus {
+            background-color: #eeeeee;
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+
+        /* 按钮样式 - 胶囊形状 */
+        button {
+            width: 100%;
+            max-width: 250px; /* 关键：限制最大宽度，和下拉框一致 */
+            padding: 15px 30px; /* 和下拉框保持一致的 padding */
+            font-size: 1.1rem; /* 和下拉框保持一致的字体大小 */
+            font-weight: 500;
+            color: white;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 50px; /* 胶囊形状 */
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px); /* 悬停时轻微上浮 */
+            box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0); /* 点击时下沉 */
+        }
+
+        /* 结果展示区 - 无边框，纯文字排版 */
+        #food-card {
+            display: none;
+            margin-top: 60px;
+            text-align: center;
+            animation: fadeInUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .result-label {
+            font-size: 1rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--text-color);
+            margin-bottom: 15px;
+        }
+
+        .highlight-name {
+            color: var(--primary-color);
+        }
+
+        .highlight-pos {
+            color: var(--accent-color);
+        }
+
+        /* 动画：从下往上淡入 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 适配电脑端：横着排 */
+        @media (min-width: 600px) {
+            .control-wrapper {
+                flex-direction: row; /* 横向排列 */
+                max-width: none;
+            }
+            select {
+                width: 250px;
+            }
+            button {
+                width: auto;
+            }
         }
     </style>
 </head>
 <body>
-<!-- 【新增】用户操作区 -->
-<div id="user-section" style="margin-bottom: 20px; padding: 10px; background-color: #f0f0f0; border-radius: 5px;">
-    <!-- 未登录时显示的内容 -->
-    <div id="auth-forms">
-        用户名：<input type="text" id="username-input" placeholder="请输入用户名">
-        密码：<input type="password" id="password-input" placeholder="请输入密码">
-        <button id="login-btn">登录</button>
-        <button id="register-btn">注册</button>
+
+<div class="content-container">
+    <h1>今天吃什么？</h1>
+
+    <div class="control-wrapper">
+        <select id="canteenSelect">
+            <option value="">全校随机</option>
+            <option value="一食堂">一食堂</option>
+            <option value="二食堂">二食堂</option>
+            <option value="三食堂">三食堂</option>
+            <option value="一食堂一楼">一食堂一楼</option>
+            <option value="一食堂二楼">一食堂二楼</option>
+            <option value="二食堂一楼">二食堂一楼</option>
+            <option value="二食堂二楼">二食堂二楼</option>
+            <option value="三食堂一楼">三食堂一楼</option>
+            <option value="三食堂二楼">三食堂二楼</option>
+        </select>
+
+        <button id="chooseBtn">开始决策</button>
     </div>
 
-    <!-- 登录成功后显示的内容（默认隐藏） -->
-    <div id="user-info" style="display: none;">
-        欢迎你，<span id="current-user" style="color: blue; font-weight: bold;"></span>！
-        <button id="logout-btn">退出登录</button>
+    <!-- 结果展示：极简文字风 -->
+    <div id="food-card">
+        <div class="info-item">
+            <div class="result-label">食物</div>
+            <div id="food-name" class="result-value highlight-name"></div>
+        </div>
+        <div class="info-item">
+            <div class="result-label">位置</div>
+            <div id="food-position" class="result-value highlight-pos"></div>
+        </div>
     </div>
-</div>
-<h1>今天吃什么？</h1>
-<!-- 【新增】下拉选择框 -->
-<!-- value="" 表示默认选项，值为空，代表“全校随机” -->
-<!-- 其他 value 值(如"一食堂")必须和你数据库 positionv2 字段里的内容完全一致 -->
-<select id="canteenSelect">
-    <option value="">-- 全校随机 --</option>
-    <option value="一食堂">一食堂</option>
-    <option value="二食堂">二食堂</option>
-    <option value="三食堂">三食堂</option>
-    <option value="一食堂一楼">一食堂一楼</option>
-    <option value="一食堂二楼">一食堂二楼</option>
-    <option value="二食堂一楼">二食堂一楼</option>
-    <option value="二食堂二楼">二食堂二楼</option>
-    <option value="三食堂一楼">三食堂一楼</option>
-    <option value="三食堂二楼">三食堂二楼</option>
-    <!-- 如果数据库里有其他食堂，照着上面格式添加 -->
-</select>
-
-<button id="chooseBtn">随机选一个</button>
-
-<!-- 这里不再只是一个 p 标签，而是一个卡片容器 -->
-<div id="food-card">
-    <div class="info-item">食物名称：<span id="food-name" class="highlight"></span></div>
-    <!-- 改动点：canteen 改为 position，对应 positionv2 -->
-    <div class="info-item">所在位置：<span id="food-position"></span></div>
 </div>
 
 <script src="script.js"></script>
