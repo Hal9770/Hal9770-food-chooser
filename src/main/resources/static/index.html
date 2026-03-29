@@ -162,6 +162,23 @@
 
 <div class="content-container">
     <h1>今天吃什么？</h1>
+    <!-- 登录注册区域 -->
+    <div id="auth-forms" style="margin-bottom: 40px;">
+        <input type="text" id="username-input" placeholder="用户名" style="display:block; width:200px; margin:5px auto; padding:10px; border-radius:20px; border:1px solid #ccc; outline:none; text-align:center;">
+        <input type="password" id="password-input" placeholder="密码" style="display:block; width:200px; margin:5px auto; padding:10px; border-radius:20px; border:1px solid #ccc; outline:none; text-align:center;">
+        <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;">
+            <button id="login-btn" style="background-color: #4A90E2; width:auto; padding:8px 20px; font-size:0.9rem;">登录</button>
+            <button id="register-btn" style="background-color: #95a5a6; width:auto; padding:8px 20px; font-size:0.9rem;">注册</button>
+        </div>
+    </div>
+
+    <!-- 登录成功后显示的区域（默认隐藏） -->
+    <div id="user-info" style="display:none; margin-bottom: 30px;">
+        <span style="color:#888;">欢迎，</span>
+        <span id="current-user" style="font-weight:bold; color:#4A90E2;"></span>
+        <button id="logout-btn" style="background-color: #e74c3c; width:auto; padding:5px 15px; font-size:0.8rem; margin-left:10px;">退出</button>
+    </div>
+
 
     <div class="control-wrapper">
         <select id="canteenSelect">
