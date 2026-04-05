@@ -166,6 +166,12 @@
     <div id="auth-forms" style="margin-bottom: 40px;">
         <input type="text" id="username-input" placeholder="用户名" style="display:block; width:200px; margin:5px auto; padding:10px; border-radius:20px; border:1px solid #ccc; outline:none; text-align:center;">
         <input type="password" id="password-input" placeholder="密码" style="display:block; width:200px; margin:5px auto; padding:10px; border-radius:20px; border:1px solid #ccc; outline:none; text-align:center;">
+        <!-- ================= 【新增：验证码区域】开始 ================= -->
+        <div style="display:flex; justify-content:center; align-items:center; gap:8px; margin-top:10px;">
+            <input type="text" id="captcha-input" placeholder="验证码" style="width:100px; padding:10px; border-radius:20px; border:1px solid #ccc; outline:none; text-align:center; font-size: 0.9rem;">
+            <img id="captcha-img" src="" alt="点击刷新" title="看不清？点我换一张" style="cursor: pointer; height: 40px; border-radius: 5px;">
+        </div>
+        <!-- ================= 【新增：验证码区域】结束 ================= -->
         <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;">
             <button id="login-btn" style="background-color: #4A90E2; width:auto; padding:8px 20px; font-size:0.9rem;">登录</button>
             <button id="register-btn" style="background-color: #95a5a6; width:auto; padding:8px 20px; font-size:0.9rem;">注册</button>

@@ -10,87 +10,142 @@ const authForms = document.getElementById('auth-forms');
 const userInfo = document.getElementById('user-info');
 const currentUserSpan = document.getElementById('current-user');
 
-// 【新增】页面一加载，就检查兜里有没有之前存的 Token
+// 【新增 1】获取验证码相关的 DOM 元素
+const captchaImg = document.getElementById('captcha-img');       // 那张图片
+const captchaInput = document.getElementById('captcha-input');   // 用户填答案的输入框
+let currentCaptchaKey = ''; // 定义一个全局变量，用来存后端发来的“暗号”
+
+// 页面一加载，就检查兜里有没有之前存的 Token
 window.onload = function() {
     const savedToken = localStorage.getItem('jwt_token');
     if (savedToken) {
-        // 如果有 Token，直接显示登录后的状态，免去重新登录
-        // （注意：这里只是前端展示，真正的合法性由后端拦截器校验）
         authForms.style.display = 'none';
         userInfo.style.display = 'block';
-        currentUserSpan.textContent = localStorage.getItem('jwt_username'); // 显示存的用户名
+        currentUserSpan.textContent = localStorage.getItem('jwt_username');
     }
+    // 【新增 2】页面加载时，顺便请求第一张验证码图片
+    loadCaptcha();
 };
 
-// 2. 注册功能（这里不用改，因为注册不走 JWT）
+// ================= 【新增功能】验证码逻辑 =================
+// 专门写一个函数，用来向后端要验证码图片
+function loadCaptcha() {
+    fetch('/users/captcha')
+        .then(res => res.json())
+        .then(data => {
+            if (data.code === 200) {
+                // 1. 把后端传来的图片（Base64格式）塞给 img 标签的 src
+                // data.image 长这样：data:image/gif;base64,R0lGODlh...
+                captchaImg.src = data.image;
+                // 2. 【极其重要】把后端发来的“暗号”存到我们的全局变量里！
+                currentCaptchaKey = data.key;
+            } else {
+                alert('获取验证码失败');
+            }
+        });
+}
+
+// 点击验证码图片时，重新换一张（俗称“看不清，换一张”）
+captchaImg.addEventListener('click', loadCaptcha);
+
+
+// 2. 注册功能（【重点修改区域】）
 registerBtn.addEventListener('click', function() {
     const username = usernameInput.value;
     const password = passwordInput.value;
+    // 【新增】拿到用户在输入框里填的验证码答案
+    const userInputCaptcha = captchaInput.value;
 
     if (!username || !password) {
         alert('用户名和密码不能为空！');
+        return;
+    }
+    // 【新增】如果没填验证码，直接拦住
+    if (!userInputCaptcha) {
+        alert('请输入验证码！');
         return;
     }
 
     fetch('/users/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: username, password: password })
+        // 【重点修改】现在不能只传账号密码了，得把“暗号”和“答案”一起打包发给后端
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            captchaKey: currentCaptchaKey, // 之前存好的暗号
+            captchaCode: userInputCaptcha  // 用户填的答案
+        })
     })
-    .then(res => res.text())
+    // 【修改】因为后端 Controller 现在统一返回 Map（JSON格式），所以用 .json() 解析
+    .then(res => res.json())
     .then(data => {
-        alert(data);
-        if (data.includes('成功')) {
+        alert(data.message); // 弹出后端返回的提示（成功或失败都有）
+
+        // 无论注册成功还是失败（比如验证码填错了），都应该刷新一下验证码
+        // 因为验证码用错一次就失效了（防重放攻击）
+        loadCaptcha();
+        captchaInput.value = ''; // 清空验证码输入框
+
+        if (data.code === 200) {
+            // 注册成功后的其他操作（比如清空密码等，按你之前的习惯来）
             passwordInput.value = '';
         }
     });
 });
 
-// 3. 登录功能（【重点修改区域】）
+
+// 3. 登录功能（保持你之前写好的 JWT 逻辑不动）
 loginBtn.addEventListener('click', function() {
     const username = usernameInput.value;
     const password = passwordInput.value;
+    // 【新增】拿到用户填的验证码
+        const userInputCaptcha = captchaInput.value;
+
+        // 【新增】没填验证码直接拦住
+        if(!userInputCaptcha) {
+            alert('请输入验证码！');
+            return;
+        }
 
     fetch('/users/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: username, password: password })
+        body: JSON.stringify({ username: username,
+         password: password,
+         captchaKey: currentCaptchaKey,
+         captchaCode: userInputCaptcha })
     })
-    // 【修改1】后端现在返回的是 JSON 对象，不是纯文本了，用 .json() 解析
     .then(res => res.json())
     .then(data => {
-        // 【修改2】判断后端返回的状态码（对应 Controller 里的 result.put("code", 200)）
         if (data.code === 200) {
             alert(data.message);
-
-            // 【核心修改】把后端发来的 Token 拿出来，存到浏览器的“本地缓存”里（揣进兜里）
             localStorage.setItem('jwt_token', data.token);
-            localStorage.setItem('jwt_username', username); // 顺便把用户名也存一下
-
-            // 切换页面状态
+            localStorage.setItem('jwt_username', username);
             authForms.style.display = 'none';
             userInfo.style.display = 'block';
             currentUserSpan.textContent = username;
         } else {
-            // 登录失败，弹出后端返回的错误信息
             alert(data.message);
+            // 【新增】登录失败（密码错或验证码错），都要刷新验证码
+            loadCaptcha();
+            captchaInput.value = '';
         }
     });
 });
 
-// 4. 退出登录（【重点修改】不能只刷新页面了）
+
+// 4. 退出登录
 logoutBtn.addEventListener('click', function() {
     if(confirm('确定要退出吗？')) {
-        // 【核心修改】退出时，必须把兜里的 Token 丢掉！
         localStorage.removeItem('jwt_token');
         localStorage.removeItem('jwt_username');
-
-        // 刷新页面，由于没有 Token 了，页面会自动变回登录框
         window.location.reload();
     }
 });
 
-// ================= 原有的食物选择逻辑 =============
+
+// ================= 原有的食物选择逻辑（保持不动） =============
 const button = document.getElementById('chooseBtn');
 const card = document.getElementById('food-card');
 const nameEl = document.getElementById('food-name');
@@ -104,39 +159,32 @@ button.addEventListener('click', function() {
         url = '/random-food/by-position?position=' + encodeURIComponent(selectedPosition);
     }
 
-    // 【核心修改】发起请求时，要把 Token 从兜里掏出来，放到请求头里（亮给后端看）
     fetch(url, {
         method: 'GET',
         headers: {
-            // 从本地缓存拿出 Token，赋值给 Authorization 请求头
             'Authorization': localStorage.getItem('jwt_token') || ''
         }
     })
         .then(response => {
-            // 【新增逻辑】如果后端拦截器发现 Token 不对，会返回 401 状态码
             if (response.status === 401) {
                 alert('登录已过期或未登录，请重新登录！');
-                localStorage.removeItem('jwt_token'); // 清除坏的 Token
-                window.location.reload(); // 刷新页面，强制回到登录框
-                return; // 终止后续操作
+                localStorage.removeItem('jwt_token');
+                window.location.reload();
+                return;
             }
-
             if (!response.ok) {
                 throw new Error('网络响应错误');
             }
             return response.json();
         })
         .then(food => {
-            // 如果上面 return 了，这里的 food 是 undefined，所以要加个判断防抖
             if (!food) return;
-
             nameEl.textContent = food.namev2;
             positionEl.textContent = food.positionv2;
             card.style.display = 'block';
         })
         .catch(error => {
             console.error('请求失败:', error);
-            // 只有不是 401 引起的错误才弹这个窗
             if(error.message !== '网络响应错误') return;
             alert('哎呀，服务器开小差了，请稍后重试！');
         });
