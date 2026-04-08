@@ -26,68 +26,38 @@ public class UserController {
     @GetMapping("/captcha")
     public Map<String, Object> getCaptcha(HttpServletResponse response)
     {
-        Map
-                <String, Object> result = new HashMap<>
-                ();
-
+        Map<String, Object> result = new HashMap<>();
         try
         {
             // 1. 创建验证码对象（宽130，高48，4位字符）
             SpecCaptcha captcha = new SpecCaptcha(130, 48, 4
             );
-
             // 2. 设置验证码类型为数字和字母混合
             captcha.setCharType(Captcha.TYPE_DEFAULT);
-
             // 3. 生成唯一的key（用于存储和验证）
             String key = UUID.randomUUID().toString().replace("-", ""
             );
-
             // 4. 将验证码存入缓存
             String code = captcha.text().toLowerCase(); // 转为小写方便比较
             CaptchaCache.put(key, code);
-
             // 5. 设置响应头（防止浏览器缓存）
-            response.setHeader(
-                    "Cache-Control", "no-store"
-            );
-            response.setHeader(
-                    "Pragma", "no-cache"
-            );
-            response.setDateHeader(
-                    "Expires", 0
-            );
-
+            response.setHeader("Cache-Control", "no-store");
+            response.setHeader("Pragma", "no-cache");
+            response.setDateHeader("Expires", 0);
             // 6. 返回Base64图片和key给前端
-            result.put(
-                    "code", 200
-            );
-            result.put(
-                    "message", "验证码生成成功"
-            );
-            result.put(
-                    "key"
-                    , key);
-            result.put(
-                    "image", captcha.toBase64()); // 返回Base64格式图片
-
-            return
-                    result;
-
+            result.put("code", 200);
+            result.put("message", "验证码生成成功");
+            result.put("key", key);
+            result.put("image", captcha.toBase64()); // 返回Base64格式图片
+            return result;
         }
         catch
         (Exception e) {
-            result.put(
-                    "code", 500
-            );
-            result.put(
-                    "message", "验证码生成失败："
-                            + e.getMessage());
-            return
-                    result;
+            result.put("code", 500);
+            result.put("message", "验证码生成失败：" + e.getMessage());
+            return result;
         }
     }
-
 
     // 注册接口
     // 访问方式：POST http://localhost:8080/users/register
